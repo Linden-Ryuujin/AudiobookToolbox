@@ -1,0 +1,23 @@
+00:00:00.000 Opening Credits
+00:00:35.979 Annotations
+00:02:34.294 About the Author
+00:02:59.324 Other Titles
+00:04:18.623 Prologue
+00:08:17.000 Chapter 1
+00:24:32.170 Chapter 2
+00:40:17.877 Chapter 3
+00:52:53.420 Chapter 4
+01:30:01.131 Chapter 5
+01:53:33.590 Chapter 6
+02:42:07.803 Chapter 7
+03:30:39.090 Chapter 8
+04:22:39.170 Chapter 9
+04:59:47.820 Chapter 10
+05:31:20.370 Chapter 11
+06:02:49.640 Chapter 12
+06:31:34.660 Chapter 13
+07:09:21.240 Chapter 14
+07:26:10.090 Chapter 15
+08:13:21.150 Chapter 16
+08:28:31.050 Chapter 17
+08:52:06.300 Epilogue

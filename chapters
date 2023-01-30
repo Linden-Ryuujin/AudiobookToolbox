@@ -1,0 +1,105 @@
+#!/bin/bash
+
+function PrintHelp {
+    echo "chapters ACTION [ACTION PARAMTERS]"
+    echo
+    echo Actions:
+    echo "  -a, --add               [chapters.txt] [audiobook.m4b]  Add the chapters in [chapters.txt] to the audiobook in quicktime format."
+    echo "  -d, --dump              [audiobook.m4B]                 Dump the chapters from the audiobook to [audiobook.chapters.txt]"
+    echo ""
+    echo "  -ac, --audacity-clean   [lables.txt]                    Remove unedited Audacity labels (ones with a \"S\" Title) and align start and end points."
+    echo "  -ad, --audacity-dump    [lables.txt]                    Covert Audacity labels into quicktime format."
+}
+
+function AskToDelete {
+    file=$1
+
+    if [[ -f $file ]]; then
+        read -p "File $file exists. Do you want to delete? [y/n] " delete
+        if [[ $delete == [yY] ]]; then
+            rm "$file" && echo "File deleted"
+        else
+            return 1
+        fi
+    fi
+
+    return 0
+}
+
+function Add {
+    chaptersFile="$1"
+    audiobook="$2"
+
+    #import chapters in nero format
+    echo "Importing chapters from file: $chaptersFile"
+    MP4Box -chap "$chaptersFile" "$audiobook"
+
+    #convert to quicktime format
+    mp4chaps --convert --chapter-qt "$audiobook"
+}
+
+function Dump {
+    audiobook="$1"
+
+    echo "Dumping chapters from audiobook: \"$audiobook\""
+    mp4chaps --export "$audiobook"
+}
+
+function AudacityCleanLabels {
+    lablesFile="$1"
+    cleanedFile=$(sed "s/\([^\.]*\)$/cleaned.\1/" <<< "$lablesFile")
+
+    echo "Cleaning Audacity lables in from: \"$lablesFile\" to \"$cleanedFile\"..."
+
+    if ! AskToDelete "$cleanedFile"; then
+        echo "Aborting clean"
+        return 1
+    fi
+
+    nextStartTime=0
+    while read startTime endTime title; do
+
+        if [ $nextStartTime == 0 ]; then
+            nextStartTime=$endTime
+        fi
+
+        if [[ "$(echo "$title" | tr -d '\n\r')" != "S" ]]; then
+            echo "$startTime	$nextStartTime	$title"
+            nextStartTime=$startTime
+        fi
+
+    done <<< "$(tac "$lablesFile")" > "$cleanedFile"
+
+    echo "$(tac "$cleanedFile")" > "$cleanedFile"
+
+    echo "Cleaning complete"
+}
+
+function AudacityDumpLabels {
+    lablesFile="$1"
+    chaptersFile=$(sed "s/\([^\.]*\)$/chapters.\1/" <<< "$lablesFile")
+
+    echo "Extracting chapters from Audacity labels in: \"$lablesFile\" to \"$chaptersFile\"..."
+
+    if ! AskToDelete "$chaptersFile"; then
+        echo "Aborting extraction"
+        return 1
+    fi
+
+
+    while read startTime endTime title; do
+        chapterTime=$(date -d@$startTime -u +%H:%M:%S.%3N)
+        echo "$chapterTime $title"
+    done < "$lablesFile" > "$chaptersFile"
+
+     echo "Extraction complete"
+}
+
+case "$1" in
+    -a|--add) shift; Add "$@" ;;
+    -d|--dump) shift; Dump "$@" ;;
+    -ac|--audacity-clean) shift; AudacityCleanLabels "$@";;
+    -ad|--audacity-dump) shift; AudacityDumpLabels "$@";;
+    -h|--help) PrintHelp ;;
+    *) echo "Unknown action: '$1'"
+esac

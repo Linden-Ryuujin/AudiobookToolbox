@@ -1,0 +1,39 @@
+#!/bin/bash
+
+function PrintHelp {
+    echo "audiobooks ACTION [ACTION PARAMETERS]"
+    echo
+    echo Actions:
+    echo "  -t, --trim              [audiobook.m4b] [Length]        Trim the [audiobook.m4b] to [Length] (HH:MM:SS.000). This will copy to a new file as some meta data will be lost."
+    echo "  -m, --merge                                             Merge all files in this folder into a single file with the same name as the folder."
+
+    echo "  -c, --chapters                                          Process audiobook chapters - use 'audiobooks -c -h' for details."
+}
+
+function Trim {
+    audiobook="$1"
+    length="$2"
+
+    outputFile=$(sed "s/\.m4b$/_out.m4a/" <<< "$audiobook")
+
+    echo "Trimming file: \"$audiobook\" to \"$outputFile\""
+
+    ffmpeg -i "$audiobook" -vn -acodec copy -t $length "$outputFile"
+}
+
+function Merge {
+    outputFile=$(pwd | sed 's/.*\/ \(.*\)/\1/').m4b
+
+    echo "Merging files to audiobook: \"$audiobook\""
+    m4b-tool merge ./. --output-file "$outputFile" --no-conversion -v
+}
+
+folder=$(dirname "$0")
+
+case "$1" in
+    -t|--trim) shift; Trim "$@" ;;
+    -m|--merge) shift; Merge "$@" ;;
+    -c| --chapters) shift; "$folder/chapters" "$@" ;;
+    -h|--help) PrintHelp ;;
+    *) echo "Unknown action: '$1'"
+esac

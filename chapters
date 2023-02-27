@@ -1,14 +1,14 @@
 #!/bin/bash
 
 function PrintHelp {
-    echo "chapters ACTION [ACTION PARAMTERS]"
+    echo "chapters ACTION [ACTION PARAMETERS]"
     echo
     echo Actions:
     echo "  -a, --add               [chapters.txt] [audiobook.m4b]  Add the chapters in [chapters.txt] to the audiobook in quicktime format."
-    echo "  -d, --dump              [audiobook.m4B]                 Dump the chapters from the audiobook to [audiobook.chapters.txt]"
+    echo "  -d, --dump              [audiobook.m4b]                 Dump the chapters from the audiobook to [audiobook.chapters.txt]"
     echo ""
-    echo "  -ac, --audacity-clean   [lables.txt]                    Remove unedited Audacity labels (ones with a \"S\" Title) and align start and end points."
-    echo "  -ad, --audacity-dump    [lables.txt]                    Covert Audacity labels into quicktime format."
+    echo "  -ac, --audacity-clean   [labels.txt]                    Remove unedited Audacity labels (ones with a \"S\" Title) and align start and end points."
+    echo "  -ad, --audacity-dump    [labels.txt]                    Covert Audacity labels into quicktime format."
 }
 
 function AskToDelete {
@@ -30,8 +30,19 @@ function Add {
     chaptersFile="$1"
     audiobook="$2"
 
-    #import chapters in nero format
+    if [[ -z "$chaptersFile" ]]; then
+        chaptersFile=$(\ls *.txt| head -1)
+    fi
+
+    if [[ -z "$audiobook" ]]; then
+        audiobook=$(\ls *.m4b| head -1)
+    fi
+
+
     echo "Importing chapters from file: $chaptersFile"
+    mp4chaps --remove "$audiobook"
+
+    #import chapters in nero format
     MP4Box -chap "$chaptersFile" "$audiobook"
 
     #convert to quicktime format
@@ -40,6 +51,10 @@ function Add {
 
 function Dump {
     audiobook="$1"
+
+    if [[ -z "$audiobook" ]]; then
+        audiobook=$(\ls *.m4b| head -1)
+    fi
 
     echo "Dumping chapters from audiobook: \"$audiobook\""
     mp4chaps --export "$audiobook"

@@ -1,69 +1,75 @@
 00:00:00.000 Opening Credits
 00:00:17.240 Dedication
-00:00:25.790 Chapter 01 - The Girl
-00:07:44.080 Chapter 02 - The Groundskeeper
-00:25:52.870 Chapter 03 - The Duke
-00:31:29.660 Chapter 04 - The Son
-00:45:16.310 Chapter 05 - The Bride
-00:56:55.120 Chapter 06 - The Inspector
-01:07:33.490 Chapter 07 - The Father
-01:16:32.150 Chapter 08 - The Stowaway
-01:24:23.500 Chapter 09 - The Rat
-01:33:02.990 Chapter 10 - The Sprouter
-01:39:46.420 Chapter 11 - The Thief
-01:47:28.900 Chapter 12 - The Crow
-02:00:30.350 Chapter 13 - The Cabin Boy
-02:09:54.310 Chapter 14 - The Dougs
-02:20:30.190 Chapter 15 - The Quartermaster
-02:29:40.990 Chapter 16 - The Corpse
-02:38:00.220 Chapter 17 - The Carpenter
-02:50:08.370 Chapter 18 - The Other Corpse
-03:00:25.810 Chapter 19 - The Cannonmaster
-03:09:54.940 Chapter 20 - The Helmswoman
-03:26:09.280 Chapter 21 - The Pirate
-03:40:47.420 Chapter 22 - The Idiot
-03:55:05.940 Chapter 23 - The Assistant Cannonmaster
-04:10:36.330 Chapter 24 - The Cursed Man
-04:26:44.700 Chapter 25 - The Prey
-04:34:44.230 Chapter 26 - The Sharpshooter
-04:45:45.540 Chapter 27 - The Spore Eater
-04:53:13.320 Chapter 28 - The Extra Good Listener
-05:09:11.350 Chapter 29 - The Familiar
-05:16:37.260 Chapter 30 - The King's Mask
-05:29:26.290 Chapter 31 - The Midnight Essence
-05:44:34.700 Chapter 32 - The Liberator
-05:56:59.860 Chapter 33 - The Liar
-06:05:45.190 Chapter 34 - The Tosher
-06:17:57.870 Chapter 35 - The Lover of Tea
-06:31:52.930 Chapter 36 - The Explorer
-06:42:07.850 Chapter 37 - The Scholar
-06:54:33.860 Chapter 38 - The Apprentice
-07:07:42.760 Chapter 39 - The Chicken Keeper
-07:18:58.640 Chapter 40 - The Chef
-07:32:12.530 Chapter 41 - The Philosopher
-07:44:56.920 Chapter 42 - The Guide
-07:55:40.960 Chapter 43 - The Musician
-08:04:00.980 Chapter 44 - The Fallen
-08:14:25.180 Chapter 45 - The Protector
-08:25:44.010 Chapter 46 - The Informant
-08:35:41.930 Chapter 47 - The Poet
-08:45:28.790 Chapter 48 - The Nightmare
-08:59:28.900 Chapter 49 - The Martyr
-09:06:12.830 Chapter 50 - The Murderer
-09:20:40.790 Chapter 51 - The Dragon
-09:28:50.540 Chapter 52 - The Sacrifice
-09:40:07.900 Chapter 53 - The Survivor
-09:45:19.260 Chapter 54 - The Valet
-10:02:11.420 Chapter 55 - The Hypocrite
-10:11:54.170 Chapter 56 - The Traitor
-10:21:51.650 Chapter 57 - The Maligned Fashion Expert
-10:39:03.630 Chapter 58 - The Monster
-10:54:42.020 Chapter 59 - The Prisoner
-11:03:48.190 Chapter 60 - The Sorceress
-11:20:22.420 Chapter 61 - The Man
-11:27:26.590 Chapter 62 - The Hu
-11:40:57.790 Chapter 63 - The Pilot
-11:52:03.530 Chapter 64 - The Hero
+00:00:25.790 Part I
+00:00:27.842   Chapter 1: The Girl
+00:07:44.080   Chapter 2: The Groundskeeper
+00:25:52.870   Chapter 3: The Duke
+00:31:29.660   Chapter 4: The Son
+00:45:16.310   Chapter 5: The Bride
+00:56:55.120  Part II
+00:56:57.015   Chapter 6: The Inspector
+01:07:33.490   Chapter 7: The Father
+01:16:32.150   Chapter 8: The Stowaway
+01:24:23.500   Chapter 9: The Rat
+01:33:02.990   Chapter 10: The Sprouter
+01:39:46.420   Chapter 11: The Thief
+01:47:28.900   Chapter 12: The Crow
+02:00:30.350 Part III
+02:00:31.932   Chapter 13: The Cabin Boy
+02:09:54.310   Chapter 14: The Dougs
+02:20:30.190   Chapter 15: The Quartermaster
+02:29:40.990   Chapter 16: The Corpse
+02:38:00.220   Chapter 17: The Carpenter
+02:50:08.370   Chapter 18: The Other Corpse
+03:00:25.810   Chapter 19: The Cannonmaster
+03:09:54.940   Chapter 20: The Helmswoman
+03:26:09.280   Chapter 21: The Pirate
+03:40:47.420 Part IV
+03:40:48.805   Chapter 22: The Idiot
+03:55:05.940   Chapter 23: The Assistant Cannonmaster
+04:10:36.330   Chapter 24: The Cursed Man
+04:26:44.700   Chapter 25: The Prey
+04:34:44.230   Chapter 26: The Sharpshooter
+04:45:45.540   Chapter 27: The Spore Eater
+04:53:13.320   Chapter 28: The Extra Good Listener
+05:09:11.350   Chapter 29: The Familiar
+05:16:37.260   Chapter 30: The King's Mask
+05:29:26.290   Chapter 31: The Midnight Essence
+05:44:34.700   Chapter 32: The Liberator
+05:56:59.860   Chapter 33: The Liar
+06:05:45.190   Chapter 34: The Tosher
+06:17:57.870 Part V
+06:17:59.554   Chapter 35: The Lover of Tea
+06:31:52.930   Chapter 36: The Explorer
+06:42:07.850   Chapter 37: The Scholar
+06:54:33.860   Chapter 38: The Apprentice
+07:07:42.760   Chapter 39: The Chicken Keeper
+07:18:58.640   Chapter 40: The Chef
+07:32:12.530   Chapter 41: The Philosopher
+07:44:56.920   Chapter 42: The Guide
+07:55:40.960   Chapter 43: The Musician
+08:04:00.980   Chapter 44: The Fallen
+08:14:25.180   Chapter 45: The Protector
+08:25:44.010   Chapter 46: The Informant
+08:35:41.930   Chapter 47: The Poet
+08:45:28.790   Chapter 48: The Nightmare
+08:59:28.900   Chapter 49: The Martyr
+09:06:12.830   Chapter 50: The Murderer
+09:20:40.790   Chapter 51: The Dragon
+09:28:50.540   Chapter 52: The Sacrifice
+09:40:07.900   Chapter 53: The Survivor
+09:45:19.260 Part VI
+09:45:21.018   Chapter 54: The Valet
+10:02:11.420   Chapter 55: The Hypocrite
+10:11:54.170   Chapter 56: The Traitor
+10:21:51.650   Chapter 57: The Maligned Fashion Expert
+10:39:03.630   Chapter 58: The Monster
+10:54:42.020   Chapter 59: The Prisoner
+11:03:48.190   Chapter 60: The Sorceress
+11:20:22.420   Chapter 61: The Man
+11:27:26.590   Chapter 62: The Hu
+11:40:57.790   Chapter 63: The Pilot
+11:52:03.530   Chapter 64: The Hero
 12:06:19.880 Epilogue
 12:15:39.190 Postscript
 12:20:07.630 Acknowledgments

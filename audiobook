@@ -14,18 +14,24 @@ function Trim {
     audiobook="$1"
     length="$2"
 
-    outputFile=$(sed "s/\.m4b$/_out.m4a/" <<< "$audiobook")
+    backupFile=$(sed "s/\.m4b$/_bck.m4b/" <<< "$audiobook")
 
-    echo "Trimming file: \"$audiobook\" to \"$outputFile\""
+    echo "Trimming file: \"$audiobook\""
+    mv "$audiobook" "$backupFile"
 
-    ffmpeg -i "$audiobook" -vn -acodec copy -t $length "$outputFile"
+    ffmpeg -i "$backupFile" -vn -acodec copy -t $length -f mp4 "$audiobook"
 }
 
 function Merge {
-    outputFile=$(pwd | sed 's/.*\/ \(.*\)/\1/').m4b
+    outputFile=$(pwd | sed 's|.*/\(.*\)|\1|').m4b
+    outputFileTemp=$(sed "s/\.m4b$/_out.m4b/" <<< "$outputFile")
 
-    echo "Merging files to audiobook: \"$audiobook\""
-    m4b-tool merge ./. --output-file "$outputFile" --no-conversion -v
+    echo "Merging files to audiobook: \"$outputFile\""
+    m4b-tool merge ./. --output-file "$outputFileTemp" --no-conversion -v
+
+    #I've been seeing some very odd timing issues, particularly when merging mp3 files. Setting format to mp4 seems to fix them.
+    ffmpeg -i "$outputFileTemp" -vn -acodec copy -f mp4 "$outputFile"
+    rm "$outputFileTemp"
 }
 
 folder=$(dirname "$0")

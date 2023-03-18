@@ -10,6 +10,7 @@ This tool box is just a fairly basic wrapper to for some other much more powerfu
  * ffmpeg
  * mp4V2-Utils
  * gpac
+ * mp3val
 
 The requirements call be installed as follows:
  ```

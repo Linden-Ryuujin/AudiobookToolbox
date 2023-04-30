@@ -14,19 +14,19 @@ This tool box is just a fairly basic wrapper to for some other much more powerfu
 
 The requirements call be installed as follows:
  ```
- sudo apt install ffmpeg mp4v2-utils gpac
+ sudo apt install ffmpeg mp4v2-utils gpac mp3val
  ```
 
 Audiobook
 ===============
-Central up for all the tools.
+Central point for all the tools.
 
 ```
 audiobooks ACTION [ACTION PARAMETERS]
 
 Actions:
   -t, --trim              [audiobook.m4b] [Length]        Trim the [audiobook.m4b] to [Length] (HH:MM:SS.000). This will copy to a new file as some meta data will be lost.
-  -m, --merge                                             Merge all files in this folder into a single file with the same name as the folder.
+  m, --merge             [-r, --recursive]               Merge all files in this folder into a single file with the same name as the folder. If [--recursive] arg is passed will instead run on all folders under the current one.
   -c, --chapters                                          Process audiobook chapters - use 'audiobooks -c -h' for details.
 ```
 

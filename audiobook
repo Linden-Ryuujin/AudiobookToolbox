@@ -5,7 +5,8 @@ function PrintHelp {
     echo
     echo Actions:
     echo "  -t, --trim              [audiobook.m4b] [Length]        Trim the [audiobook.m4b] to [Length] (HH:MM:SS.000). This will copy to a new file as some meta data will be lost."
-    echo "  -m, --merge                                             Merge all files in this folder into a single file with the same name as the folder."
+    echo "  -s, --skip              [audiobook.m4b] [NewStart]      Set the [audiobook.m4b] to start at [NewStart] (HH:MM:SS.000). This will copy to a new file as some meta data will be lost."
+    echo "  -m, --merge             [-r, --recursive]               Merge all files in this folder into a single file with the same name as the folder. If [--recursive] arg is passed will instead run on all folders under the current one."
 
     echo "  -c, --chapters                                          Process audiobook chapters - use 'audiobooks -c -h' for details."
 }
@@ -14,17 +15,41 @@ function Trim {
     audiobook="$1"
     length="$2"
 
-    backupFile=$(sed "s/\.m4b$/_bck.m4b/" <<< "$audiobook")
+    backupFile=$(sed "s/\.\([^.]\+\)$/.bck.\1/" <<< "$audiobook")
 
     echo "Trimming file: \"$audiobook\""
     mv "$audiobook" "$backupFile"
 
-    ffmpeg -i "$backupFile" -vn -acodec copy -t $length -f mp4 "$audiobook"
+
+    if [ ${audiobook: -4} == ".m4b" ]; then
+        ffmpeg -i "$backupFile" -vn -acodec copy -t $length -f mp4 "$audiobook"
+    else
+        ffmpeg -i "$backupFile" -vn -acodec copy -t $length "$audiobook"
+    fi
 }
 
-function Merge {
+function Skip {
+    audiobook="$1"
+    start="$2"
+
+    backupFile=$(sed "s/\.\([^.]\+\)$/.bck.\1/" <<< "$audiobook")
+
+    echo "Skipping start of file: \"$audiobook\""
+    mv "$audiobook" "$backupFile"
+
+    if [ ${audiobook: -4} == ".m4b" ]; then
+        ffmpeg -i "$backupFile" -vn -acodec copy -ss $start -f mp4 "$audiobook"
+    else
+        ffmpeg -i "$backupFile" -vn -acodec copy -ss $start "$audiobook"
+    fi
+}
+
+function MergeFolder {
+    pushd "$1" > /dev/null
+
     outputFile=$(pwd | sed 's|.*/\(.*\)|\1|').m4b
     outputFileTemp=$(sed "s/\.m4b$/_temp/" <<< "$outputFile")
+    outputFileTempFolder="$outputFileTemp-tmpfiles"
 
     if [ $(find . -maxdepth 1 -type f -name "*.mp3" | wc -l) != 0 ]; then
        outputFileTemp="$outputFileTemp.mp3"
@@ -32,8 +57,13 @@ function Merge {
         outputFileTemp="$outputFileTemp.aac"
     elif [ $(find . -maxdepth 1 -type f -name "*.m4a" | wc -l) != 0 ]; then
         outputFileTemp="$outputFileTemp.m4a"
+    elif [ $(find . -maxdepth 1 -type f -name "*.flac" | wc -l) != 0 ]; then
+        outputFileTemp="$outputFileTemp.flac"
     elif [ $(find . -maxdepth 1 -type f -name "*.m4b" | wc -l) != 0 ]; then
         outputFileTemp="$outputFileTemp.m4b"
+    else
+        echo "No audio files found in: \"$(pwd)\""
+        return 0
     fi
 
     echo "Merging files to audiobook: \"$outputFile\""
@@ -42,18 +72,35 @@ function Merge {
     m4b-tool merge ./. --output-file "$outputFileTemp" --no-conversion -vvv
 
     if [ $(find . -maxdepth 1 -type f -name "*.mp3" | wc -l) != 0 ]; then
+        echo "Fixing any MP3 errors"
        mp3val "$outputFileTemp" -f -nb
     fi
 
     #next convert to m4b
+    echo "Wrap as m4b"
     ffmpeg -i "$outputFileTemp" -vn -acodec copy -f mp4 "$outputFile"
     rm "$outputFileTemp"
+    rm -rf "$outputFileTempFolder"
+
+    popd
+}
+
+export -f MergeFolder
+
+function Merge
+{
+    case "$1" in
+        -r|--recursive) find . -mindepth 1 -type d -exec bash -c 'MergeFolder "$0"' {} \; ;;
+        "") MergeFolder "$(pwd)" ;;
+        *) echo "Unknown action: '$1'"
+    esac
 }
 
 folder=$(dirname "$0")
 
 case "$1" in
     -t|--trim) shift; Trim "$@" ;;
+    -s|--skip) shift; Skip "$@" ;;
     -m|--merge) shift; Merge "$@" ;;
     -c| --chapters) shift; "$folder/chapters" "$@" ;;
     -h|--help) PrintHelp ;;

@@ -61,10 +61,10 @@ function Dump {
 }
 
 function AudacityCleanLabels {
-    lablesFile="$1"
-    cleanedFile=$(sed "s/\([^\.]*\)$/cleaned.\1/" <<< "$lablesFile")
+    labelsFile="$1"
+    cleanedFile=$(sed "s/\([^\.]*\)$/cleaned.\1/" <<< "$labelsFile")
 
-    echo "Cleaning Audacity lables in from: \"$lablesFile\" to \"$cleanedFile\"..."
+    echo "Cleaning Audacity labels in from: \"$labelsFile\" to \"$cleanedFile\"..."
 
     if ! AskToDelete "$cleanedFile"; then
         echo "Aborting clean"
@@ -83,7 +83,7 @@ function AudacityCleanLabels {
             nextStartTime=$startTime
         fi
 
-    done <<< "$(tac "$lablesFile")" > "$cleanedFile"
+    done <<< "$(tac "$labelsFile")" > "$cleanedFile"
 
     echo "$(tac "$cleanedFile")" > "$cleanedFile"
 
@@ -91,10 +91,10 @@ function AudacityCleanLabels {
 }
 
 function AudacityDumpLabels {
-    lablesFile="$1"
-    chaptersFile=$(sed "s/\([^\.]*\)$/chapters.\1/" <<< "$lablesFile")
+    labelsFile="$1"
+    chaptersFile=$(sed "s/\([^\.]*\)$/chapters.\1/" <<< "$labelsFile")
 
-    echo "Extracting chapters from Audacity labels in: \"$lablesFile\" to \"$chaptersFile\"..."
+    echo "Extracting chapters from Audacity labels in: \"$labelsFile\" to \"$chaptersFile\"..."
 
     if ! AskToDelete "$chaptersFile"; then
         echo "Aborting extraction"
@@ -105,16 +105,101 @@ function AudacityDumpLabels {
     while read startTime endTime title; do
         chapterTime=$(date -d@$startTime -u +%H:%M:%S.%3N)
         echo "$chapterTime $title"
-    done < "$lablesFile" > "$chaptersFile"
+    done < "$labelsFile" > "$chaptersFile"
 
      echo "Extraction complete"
+}
+
+function AddAudacityLabels {
+    labelsFile="$1"
+
+    if [[ -z "$labelsFile" ]]; then
+        labelsFile=$(\ls *.txt| head -1)
+    fi
+
+    cleanedFile=$(sed "s/\([^\.]*\)$/cleaned.\1/" <<< "$labelsFile")
+    chaptersFile=$(sed "s/\([^\.]*\)$/chapters.\1/" <<< "$cleanedFile")
+
+
+    AudacityCleanLabels "$labelsFile"
+    AudacityDumpLabels "$cleanedFile"
+    Add "$chaptersFile"
+}
+
+function Fetch {
+    asin=$1
+    region=$2
+
+    if [[ -z "$search" ]]; then
+        asin=$(FindAsin)
+    fi
+
+    if [[ -z "$region" ]]; then
+        region=uk
+    fi
+
+    url=https://api.audnex.us/books/$asin/chapters?region=$region
+
+    echo Fetch: $url
+    result=$(curl $url)
+
+    chapters=$(grep -Po '"chapters":.*?"\}\],' <<< $result)
+
+    echo ""
+    echo "Writing chapters to chapters.txt:"
+
+    rm chapters.txt
+    grep -Po '\{.*?\}' <<< $chapters | while read -r line ; do
+        startTime=$(sed -nr 's/.*"startOffsetMs":([^,]*?)([^,][^,][^,]).*/\1.\2/p' <<< $line)
+        title=$(sed -nr 's/.*"title":"(.*)"}.*/\1/p' <<< $line)
+
+        if [[ -z "$startTime" ]]; then
+            startTime="0.000"
+        fi
+
+        chapterTime=$(date -d@$startTime -u +%H:%M:%S.%3N)
+
+        echo $chapterTime $title >> chapters.txt
+    done
+
+    cat chapters.txt
+}
+
+function FindAsin {
+    search=$1
+
+    if [[ -z "$search" ]]; then
+        audiobook=$(\ls *.m4b| head -1)
+
+        probe=$(ffprobe "$audiobook" 2>&1)
+        authorLine=$(grep -w -m 1 'artist' <<< $probe)
+        author=$(sed -nr 's/.*:[ ]*(.)/\1/p' <<< $authorLine)
+
+        titleLine=$(grep -w -m 1 'album' <<< $probe)
+        title=$(sed -nr 's/.*:[ ]*(.)/\1/p' <<< $titleLine)
+
+        search="$author $title"
+    fi
+    search=$(sed 's/ /%20/g' <<< $search)
+
+    url="https://www.audible.com/search?ipRedirectOverride=true&overrideBaseCountry=true&keywords=$search"
+
+    result=$(curl "$url" 2>/dev/null)
+
+    asinLine=$(grep -Po -m 1 'data-asin=".*"' <<< $result)
+    asin=$(sed -nr 's/.*data-asin="([^"]*)".*/\1/p' <<< $asinLine)
+
+    echo $asin
 }
 
 case "$1" in
     -a|--add) shift; Add "$@" ;;
     -d|--dump) shift; Dump "$@" ;;
+    -f|--fetch) shift; Fetch "$@" ;;
+    --asin)  shift; FindAsin "$@" ;;
     -ac|--audacity-clean) shift; AudacityCleanLabels "$@";;
     -ad|--audacity-dump) shift; AudacityDumpLabels "$@";;
+    -aa|--audacity-add) shift; AddAudacityLabels "$@";;
     -h|--help) PrintHelp ;;
     *) echo "Unknown action: '$1'"
 esac

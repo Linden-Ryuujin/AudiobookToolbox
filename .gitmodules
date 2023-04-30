@@ -1,0 +1,3 @@
+[submodule "Chapterize-Audiobooks"]
+	path = Chapterize-Audiobooks
+	url = git@github.com:Linden-Ryuujin/Chapterize-Audiobooks.git

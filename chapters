@@ -192,14 +192,51 @@ function FindAsin {
     echo $asin
 }
 
+function ScanFolder {
+    pushd "$1" > /dev/null
+
+    audiobook="$2"
+    chapterizePath="$AUDIOBOOK_SCRIPT_FOLDER/Chapterize-Audiobooks"
+
+    if [[ -z "$audiobook" ]]; then
+        audiobook=$(\ls *.m4b| head -1)
+        audiobookPath="$(pwd)/$audiobook"
+    fi
+
+    echo Scanning audiobook for chapters: "$audiobookPath"
+
+    pushd "$chapterizePath"
+
+    source venv/bin/activate
+
+    python ./chapterize_ab.py "$audiobookPath"
+
+    popd
+    popd
+}
+
+export -f ScanFolder
+
+function Scan
+{
+    case "$1" in
+        -r|--recursive) find . -mindepth 1 -type d -exec bash -c 'ScanFolder "$0"' {} \; ;;
+        "") ScanFolder "$(pwd)" ;;
+        *) echo "Unknown action: '$1'"
+    esac
+}
+
+export AUDIOBOOK_SCRIPT_FOLDER=$(dirname "$0")
+
 case "$1" in
     -a|--add) shift; Add "$@" ;;
     -d|--dump) shift; Dump "$@" ;;
     -f|--fetch) shift; Fetch "$@" ;;
+    -s|--scan) shift; Scan "$@" ;;
     --asin)  shift; FindAsin "$@" ;;
     -ac|--audacity-clean) shift; AudacityCleanLabels "$@";;
     -ad|--audacity-dump) shift; AudacityDumpLabels "$@";;
     -aa|--audacity-add) shift; AddAudacityLabels "$@";;
-    -h|--help) PrintHelp ;;
+    -h|--help) shift; PrintHelp ;;
     *) echo "Unknown action: '$1'"
 esac

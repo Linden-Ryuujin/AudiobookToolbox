@@ -4,6 +4,9 @@ function PrintHelp {
     echo "chapters ACTION [ACTION PARAMETERS]"
     echo
     echo Actions:
+    echo "  -s, --scan              [-r -n]                         Scan an audiobook (the first .m4b file that can be found in the current directory) for chapters using audio to text python project. This will take a long time (in the order of hours) per book."
+    echo "                                                          -r to scan all folders recursively for audiobooks."
+    echo "                                                          -n To look for single numbers rather than the world 'Chapter'."
     echo "  -i, --import            [audiobook.m4b]                 Add the chapters in [audiobook.chapters.txt] to the audiobook in quicktime format - this can be quicker and more robust than add, but requires the chapters file to be correctly named."
     echo "  -a, --add               [chapters.txt] [audiobook.m4b]  Add the chapters in [chapters.txt] to the audiobook in quicktime format."
     echo "  -d, --dump              [audiobook.m4b]                 Dump the chapters from the audiobook to [audiobook.chapters.txt]"
@@ -222,12 +225,21 @@ function FindAsin {
 function ScanFolder {
     pushd "$1" > /dev/null
 
-    audiobook="$2"
+    numbers=False
+    case "$2" in
+      -n|--numbers) numbers=True
+    esac
+
     chapterizePath="$AUDIOBOOK_SCRIPT_FOLDER/Chapterize-Audiobooks"
 
-    if [[ -z "$audiobook" ]]; then
-        audiobook=$(\ls *.m4b| head -1)
-        audiobookPath="$(pwd)/$audiobook"
+    audiobook=$(\ls *.m4b| head -1)
+    audiobookPath="$(pwd)/$audiobook"
+
+    subtitle=$(\ls *.srt| head -1)
+    if [[ -n "$subtitle" ]]; then
+        subtitlePath="$(pwd)/$subtitle"
+        chapterPath=$(echo $audiobookPath | sed "s/\.m4b/.chapters.txt/g")
+        echo $chapterPath
     fi
 
     echo Scanning audiobook for chapters: "$audiobookPath"
@@ -236,7 +248,13 @@ function ScanFolder {
 
     source venv/bin/activate
 
-    python ./chapterize_ab.py "$audiobookPath"
+    if [[ -z "$subtitle" ]]; then
+        python ./chapterize_ab.py "$audiobookPath"
+    else
+        echo Existing subtitle file found, just scanning text: "$subtitle"
+        python -c "from chapterize_ab import *; print_timecodes('$subtitlePath', '$chapterPath', $numbers)"
+    fi
+
 
     popd
     popd
@@ -247,9 +265,8 @@ export -f ScanFolder
 function Scan
 {
     case "$1" in
-        -r|--recursive) find . -mindepth 1 -type d -exec bash -c 'ScanFolder "$0"' {} \; ;;
-        "") ScanFolder "$(pwd)" ;;
-        *) echo "Unknown action: '$1'"
+        -r|--recursive) shift; find . -mindepth 1 -type d -exec bash -c 'ScanFolder "$0" "$@"' {} \; ;;
+        *) ScanFolder "$(pwd)" "$@" ;;
     esac
 }
 

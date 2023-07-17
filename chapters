@@ -4,6 +4,7 @@ function PrintHelp {
     echo "chapters ACTION [ACTION PARAMETERS]"
     echo
     echo Actions:
+    echo "  -i, --import            [audiobook.m4b]                 Add the chapters in [audiobook.chapters.txt] to the audiobook in quicktime format - this can be quicker and more robust than add, but requires the chapters file to be correctly named."
     echo "  -a, --add               [chapters.txt] [audiobook.m4b]  Add the chapters in [chapters.txt] to the audiobook in quicktime format."
     echo "  -d, --dump              [audiobook.m4b]                 Dump the chapters from the audiobook to [audiobook.chapters.txt]"
     echo ""
@@ -38,15 +39,39 @@ function Add {
         audiobook=$(\ls *.m4b| head -1)
     fi
 
+    if [ -e "$chaptersFile" ]; then
+        echo "Adding chapters using MP4Box from file: $chaptersFile"
+        mp4chaps --remove "$audiobook"
 
-    echo "Importing chapters from file: $chaptersFile"
-    mp4chaps --remove "$audiobook"
+        #import chapters in nero format
+        MP4Box -chap "$chaptersFile" "$audiobook"
 
-    #import chapters in nero format
-    MP4Box -chap "$chaptersFile" "$audiobook"
+        #convert to quicktime format
+        mp4chaps --convert --chapter-qt "$audiobook"
+    else
+        echo "chapter file not found."
+    fi
+}
 
-    #convert to quicktime format
-    mp4chaps --convert --chapter-qt "$audiobook"
+function Import {
+    audiobook="$1"
+
+    if [[ -z "$audiobook" ]]; then
+        audiobook=$(\ls *.m4b| head -1)
+    fi
+
+    if [ -e "$audiobook" ]; then
+        echo "Importing chapters using mp4chaps"
+        mp4chaps --remove "$audiobook"
+
+        #import chapters
+       mp4chaps --verbose 4 -i "$audiobook"
+
+        #ensure in quicktime format
+        mp4chaps --convert --chapter-qt "$audiobook"
+    else
+        echo "audiobook file not found."
+    fi
 }
 
 function Dump {
@@ -130,7 +155,7 @@ function Fetch {
     asin=$1
     region=$2
 
-    if [[ -z "$search" ]]; then
+    if [[ $asin = *" "* ]]; then
         asin=$(FindAsin)
     fi
 
@@ -143,12 +168,14 @@ function Fetch {
     echo Fetch: $url
     result=$(curl $url)
 
+    echo $result
+    echo " "
+
     chapters=$(grep -Po '"chapters":.*?"\}\],' <<< $result)
 
     echo ""
     echo "Writing chapters to chapters.txt:"
 
-    rm chapters.txt
     grep -Po '\{.*?\}' <<< $chapters | while read -r line ; do
         startTime=$(sed -nr 's/.*"startOffsetMs":([^,]*?)([^,][^,][^,]).*/\1.\2/p' <<< $line)
         title=$(sed -nr 's/.*"title":"(.*)"}.*/\1/p' <<< $line)
@@ -229,6 +256,7 @@ function Scan
 export AUDIOBOOK_SCRIPT_FOLDER=$(dirname "$0")
 
 case "$1" in
+    -i|--import) shift; Import "$@" ;;
     -a|--add) shift; Add "$@" ;;
     -d|--dump) shift; Dump "$@" ;;
     -f|--fetch) shift; Fetch "$@" ;;

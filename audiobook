@@ -69,7 +69,7 @@ function MergeFolder {
     echo "Merging files to audiobook: \"$outputFile\""
 
     #first get a unified audio file
-    m4b-tool merge ./. --output-file "$outputFileTemp" --no-conversion -vvv
+    m4b-tool merge ./. --output-file "$outputFileTemp" --no-conversion --jobs=2 -vvv
 
     if [ $(find . -maxdepth 1 -type f -name "*.mp3" | wc -l) != 0 ]; then
         echo "Fixing any MP3 errors"
@@ -96,11 +96,25 @@ function Merge
     esac
 }
 
+function SplitChannels
+{
+    audiobook="$2"
+
+    if [[ -z "$audiobook" ]]; then
+        audiobook=$(\ls *.m4b| head -1)
+    fi
+
+    echo "Splitting audio channels from file: \"$audiobook\""
+
+    ffmpeg -i "$audiobook" -filter_complex "[0:a]channelsplit=channel_layout=stereo[left][right]" -map "[left]" left.m4a -map "[right]" right.m4a
+}
+
 folder=$(dirname "$0")
 
 case "$1" in
     -t|--trim) shift; Trim "$@" ;;
     -s|--skip) shift; Skip "$@" ;;
+    --splitChannels) shift; SplitChannels "$@" ;;
     -m|--merge) shift; Merge "$@" ;;
     -c| --chapters) shift; "$folder/chapters" "$@" ;;
     -h|--help) PrintHelp ;;
